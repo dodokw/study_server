@@ -1,20 +1,26 @@
-import express from "express";
-import morgan from "morgan";
+import { AppDataSource } from "./data-source";
+// import { User } from "./entity/User";
 
-const app = express();
+export const ADS = () => {
+  console.log("실행 전");
+  AppDataSource.initialize()
+    .then(async () => {
+      console.log("Inserting a new user into the database...");
+      //   const user = new User();
+      //   user.firstName = "Timber";
+      //   user.lastName = "Saw";
+      //   user.age = 25;
+      //   await AppDataSource.manager.save(user);
+      //   console.log("Saved a new user with id: " + user.id);
 
-// Middlewares 사용
-app.use(express.json());
+      //   console.log("Loading users from the database...");
+      //   const users = await AppDataSource.manager.find(User);
+      //   console.log("Loaded users: ", users);
 
-// Morgan 사용 (dev-개발용, combined-배포용)
-app.use(morgan("dev"));
-
-//api가 /<- request가 들어오면 response로 "Hello World!"를 보내준다.
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-const port = 4000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+      //   console.log(
+      //     "Here you can setup and run express / fastify / any other framework."
+      //   );
+    })
+    .catch((error) => console.log(error))
+    .finally(() => console.log("실행 후"));
+};

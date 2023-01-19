@@ -1,6 +1,7 @@
 import { validate } from "class-validator";
 import { Router, Request, Response } from "express";
 import { User } from "../entity/User";
+import bcrypt from "bcryptjs";
 
 const register = async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
@@ -45,7 +46,41 @@ const register = async (req: Request, res: Response) => {
   }
 };
 
+const login = async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+  console.log("req.body", req.body);
+  try {
+    let error = {};
+    //유저가 존재하는지.
+    console.log("123");
+    const user = await User.findOneBy({ username });
+    console.log("1234");
+    if (user) {
+      //유저가 존재한다면
+      console.log("123123");
+      const pw = await bcrypt.compare(password, user.password);
+      if (pw) {
+        //유저&비밀번호 일치시
+        console.log("login success");
+        return res.status(200).json(user);
+      } else {
+        //비밀번호가 일치하지 않다면
+        error = { ...error, password: "비밀번호가 일치하지 않습니다." };
+        return res.status(400).json(error);
+      }
+    } else {
+      //유저 아이디가 존재 하지 않다면
+      error = { ...error, username: "존재하지 않는 유저입니다." };
+      return res.status(400).json(error);
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ e });
+  }
+};
+
 const router = Router();
 router.post("/register", register);
+router.post("/login", login);
 
 export default router;

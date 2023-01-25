@@ -2,6 +2,8 @@ import { validate } from "class-validator";
 import { Router, Request, Response } from "express";
 import { User } from "../entity/User";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import cookie from "cookie";
 
 const register = async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
@@ -52,16 +54,26 @@ const login = async (req: Request, res: Response) => {
   try {
     let error = {};
     //유저가 존재하는지.
-    console.log("123");
     const user = await User.findOneBy({ username });
-    console.log("1234");
     if (user) {
       //유저가 존재한다면
-      console.log("123123");
       const pw = await bcrypt.compare(password, user.password);
       if (pw) {
         //유저&비밀번호 일치시
         console.log("login success");
+        //토큰 확인로그
+        console.log("process.env.JWT_SECRET", process.env.JWT_SECRET);
+        //토큰생성
+        const token = jwt.sign({ username }, process.env.JWT_SECRET as string);
+        //쿠키저장
+        res.set(
+          "Set-Cookie",
+          cookie.serialize("token", token, {
+            httpOnly: true,
+            maxAge: 60 * 60 * 24 * 7, // 1 week (60초 * 60분 * 24시간 * 7일)
+            path: "/",
+          })
+        );
         return res.status(200).json(user);
       } else {
         //비밀번호가 일치하지 않다면

@@ -2,8 +2,11 @@ import express from "express";
 import morgan from "morgan";
 import { ADS } from ".";
 import authRoutes from "../src/routes/auth";
+import subsRoutes from "../src/routes/subs";
 import cors from "cors";
+// import cookieParser from "cookie-parser";
 
+const cookies = require("cookie-parser");
 const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
@@ -22,6 +25,8 @@ app.get("/", (req, res) => {
   res.send("Hello node!");
 });
 app.use("/api/auth", authRoutes);
+app.use("/api/subs", subsRoutes);
+app.use(cookies());
 
 const port = 4000;
 app.listen(port, () => {
